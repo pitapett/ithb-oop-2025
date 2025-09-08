@@ -3,12 +3,15 @@
  */
 package pertemuan1;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
+import pertemuan1.database.Database;
 
 public class App {
     public static class Mahasiswa {
@@ -45,6 +48,7 @@ public class App {
         "D", 1.0,
         "E", 0.0
     );
+    public static Connection connection;
 
     public static int readInt(){
         int result = scanner.nextInt();
@@ -521,7 +525,7 @@ public class App {
     }
 
     public static void start(){
-        initData();
+        connection = Database.connect();
         printMenuUtama();
         int input = readInt();
         while (input != 0){
