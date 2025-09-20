@@ -12,30 +12,12 @@ import java.util.Map;
 import java.util.Scanner;
 
 import pertemuan1.database.Database;
+import pertemuan1.repository.*;
 
 public class App {
-    public static class Mahasiswa {
-        public String nim;
-        public String nama;
-        public Jurusan jurusan;
-        public Map<MataKuliah, String> indeksNilai;
-    }
-
-    public static class MataKuliah{
-        public String kode;
-        public String nama;
-        public int sks;
-    }
-
-    public static class Jurusan {
-        public String kode;
-        public String nama;
-        public ArrayList<MataKuliah> listMataKuliah;
-    }
-
     public static ArrayList<Mahasiswa> listMahasiswa;
     public static ArrayList<Jurusan> listJurusan;
-    public static Scanner scanner;
+    public static final Scanner scanner = new Scanner(System.in);
     public static List<String> listIndexNilai = Arrays.asList("A", "A-", "B+", "B", "B-", "C+", "C", "D", "E");
     public static Map<String, Double> indexNilaiValue = Map.of(
         "A", 4.0,
@@ -50,7 +32,13 @@ public class App {
     );
     public static Connection connection;
 
+    private static JurusanRepository jurusanRepository = new JurusanRepository();
+
     public static int readInt(){
+        while (!scanner.hasNextInt()) {
+            System.out.println("Input tidak valid. Silakan masukkan angka.");
+            scanner.next(); 
+        }
         int result = scanner.nextInt();
         scanner.nextLine();
         return result;
@@ -65,7 +53,6 @@ public class App {
     public static void initData(){
         listMahasiswa = new ArrayList<>();
         listJurusan = new ArrayList<>();
-        scanner =new Scanner(System.in);
 
         Jurusan informatika = new Jurusan();
         informatika.kode = "IF";

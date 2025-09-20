@@ -6,15 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import pertemuan1.database.Database;
 
 import pertemuan1.App.Jurusan;
 
 public class JurusanRepository {
-    private final Connection conn;
-
-    public JurusanRepository(Connection conn) {
-        this.conn = conn;
-    }
+    static final Connection conn = Database.connect();
 
     public List<Jurusan> findAll() {
         List<Jurusan> list = new ArrayList<>();
