@@ -1,9 +1,14 @@
 package pertemuan1.models;
 
+import java.util.List;
+
+import pertemuan1.models.Enrollment;
+
 public class Mahasiswa {
     private String nim;
     private String nama;
     private Jurusan jurusan;
+    private List<Enrollment> enrollments;
 
     public String getNim() {
         return nim;
@@ -27,5 +32,13 @@ public class Mahasiswa {
 
     public void setJurusan(Jurusan jurusan) {
         this.jurusan = jurusan;
+    }
+
+    public List<Enrollment> getEnrollments() {
+        return enrollments;
+    }
+
+    public void setEnrollments(List<Enrollment> enrollments) {
+        this.enrollments = enrollments;
     }
 }

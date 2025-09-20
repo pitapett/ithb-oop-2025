@@ -1,7 +1,5 @@
 package pertemuan1.models;
 
-import pertemuan1.models.Jurusan;
-import pertemuan1.models.Mahasiswa;
 
 public class Enrollment {
     private Mahasiswa mahasiswa;

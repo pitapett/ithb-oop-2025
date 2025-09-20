@@ -4,6 +4,7 @@ public class MataKuliah {
     private String kode;
     private String nama;
     private int sks;
+    private Jurusan jurusan;
 
     public String getKode() {
         return kode;
@@ -28,4 +29,13 @@ public class MataKuliah {
     public void setSks(int sks) {
         this.sks = sks;
     }
+
+    public Jurusan getJurusan() {
+        return jurusan;
+    }
+
+    public void setJurusan(Jurusan jurusan) {
+        this.jurusan = jurusan;
+    }
+    
 }
