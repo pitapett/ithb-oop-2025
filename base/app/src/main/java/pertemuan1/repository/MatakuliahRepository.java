@@ -11,8 +11,19 @@ import pertemuan1.models.Jurusan;
 import pertemuan1.models.MataKuliah;
 
 public class MatakuliahRepository {
+    private final JurusanRepository jurusanRepository;
+
+    public MatakuliahRepository(JurusanRepository jurusanRepository) {
+        this.jurusanRepository = jurusanRepository;
+    }
 
     public boolean insert(MataKuliah matakuliah) {
+        Jurusan existingJurusan = jurusanRepository.findByKode(matakuliah.getJurusan().getKode());
+        if (existingJurusan == null) {
+            System.out.println("Jurusan " + matakuliah.getJurusan().getKode() + "doesn't exist in the database");
+            return false;
+        }
+
         String sql = "INSERT INTO matakuliah (kode_matakuliah, nama, sks, kode_jurusan) VALUES (?, ?, ?, ?)";
         try (Connection conn = Database.connect();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -51,6 +62,34 @@ public class MatakuliahRepository {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public List<MataKuliah> findByJurusan(String kodeJurusan) {
+        List<MataKuliah> list = new ArrayList<>();
+        String sql = "SELECT mk.kode_matakuliah, mk.nama, mk.sks, j.kode_jurusan, j.nama AS nama_jurusan FROM matakuliah mk JOIN jurusan j ON mk.kode_jurusan = j.kode_jurusan WHERE mk.kode_jurusan = ?";
+        try (Connection conn = Database.connect();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, kodeJurusan);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Jurusan j = new Jurusan();
+                    j.setKode(rs.getString("kode_jurusan"));
+                    j.setNama(rs.getString("nama_jurusan"));
+
+                    MataKuliah mk = new MataKuliah();
+                    mk.setKode(rs.getString("kode_matakuliah"));
+                    mk.setNama(rs.getString("nama"));
+                    mk.setSks(rs.getInt("sks"));
+                    mk.setJurusan(j);
+
+                
+                    list.add(mk);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public MataKuliah findByKode(String kode) {

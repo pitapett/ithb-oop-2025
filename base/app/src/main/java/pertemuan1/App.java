@@ -13,199 +13,124 @@ import java.util.Scanner;
 
 import pertemuan1.database.Database;
 import pertemuan1.repository.*;
+import pertemuan1.models.*;
 
 public class App {
-    public static ArrayList<Mahasiswa> listMahasiswa;
-    public static ArrayList<Jurusan> listJurusan;
+    public JurusanRepository jurusanRepository = new JurusanRepository();
+    public MahasiswaRepository mahasiswaRepository = new MahasiswaRepository(jurusanRepository);
+    public MatakuliahRepository matakuliahRepository = new MatakuliahRepository(jurusanRepository);
     public static final Scanner scanner = new Scanner(System.in);
     public static List<String> listIndexNilai = Arrays.asList("A", "A-", "B+", "B", "B-", "C+", "C", "D", "E");
     public static Map<String, Double> indexNilaiValue = Map.of(
-        "A", 4.0,
-        "A-", 3.7,
-        "B+", 3.3,
-        "B", 3.0,
-        "B-", 2.7,
-        "C+", 2.3,
-        "C", 2.0,
-        "D", 1.0,
-        "E", 0.0
-    );
-    public static Connection connection;
+            "A", 4.0,
+            "A-", 3.7,
+            "B+", 3.3,
+            "B", 3.0,
+            "B-", 2.7,
+            "C+", 2.3,
+            "C", 2.0,
+            "D", 1.0,
+            "E", 0.0);
 
-    private static JurusanRepository jurusanRepository = new JurusanRepository();
-
-    public static int readInt(){
+    public static int readInt() {
         while (!scanner.hasNextInt()) {
             System.out.println("Input tidak valid. Silakan masukkan angka.");
-            scanner.next(); 
+            scanner.next();
         }
         int result = scanner.nextInt();
         scanner.nextLine();
         return result;
     }
 
-    public static String readLine(){
+    public static String readLine() {
         String result = scanner.nextLine();
         return result;
     }
 
-
-    public static void initData(){
-        listMahasiswa = new ArrayList<>();
-        listJurusan = new ArrayList<>();
-
-        Jurusan informatika = new Jurusan();
-        informatika.kode = "IF";
-        informatika.nama = "Informatika";
-        informatika.listMataKuliah = new ArrayList<>();
-        listJurusan.add(informatika);
-
-        Jurusan sistemInformasi = new Jurusan();
-        sistemInformasi.kode = "SI";
-        sistemInformasi.nama = "Sistem Informasi";
-        sistemInformasi.listMataKuliah = new ArrayList<>();
-        listJurusan.add(sistemInformasi);
-
-        MataKuliah algoritma = new MataKuliah();
-        algoritma.kode = "pro1";
-        algoritma.nama = "Algoritma";
-        algoritma.sks = 3;
-        informatika.listMataKuliah.add(algoritma);
-        sistemInformasi.listMataKuliah.add(algoritma);
-
-        MataKuliah strukturData = new MataKuliah();
-        strukturData.kode = "pro2";
-        strukturData.nama = "Struktur Data";
-        strukturData.sks = 3;
-        informatika.listMataKuliah.add(strukturData);
-        
-        MataKuliah erp = new MataKuliah();
-        erp.kode = "pro3";
-        erp.nama = "Enterprise Resource Planning";
-        erp.sks = 2;
-        sistemInformasi.listMataKuliah.add(erp);
-
-        MataKuliah pbo = new MataKuliah();
-        pbo.kode = "pro4";
-        pbo.nama = "Pemrograman Berorientasi Objek";
-        pbo.sks = 3;
-        informatika.listMataKuliah.add(pbo);
-
-        Mahasiswa alice = new Mahasiswa();
-        alice.nim = "1124001";
-        alice.nama = "Alice";
-        alice.indeksNilai = new HashMap<>();
-        alice.jurusan = informatika;
-        alice.indeksNilai.put(algoritma, "B");
-        alice.indeksNilai.put(strukturData,"C");
-        listMahasiswa.add(alice);
-        
-
-        Mahasiswa bob = new Mahasiswa();
-        bob.nim = "1124002";
-        bob.nama = "Bob";
-        bob.indeksNilai = new HashMap<>();
-        bob.jurusan = informatika;
-        bob.indeksNilai.put(algoritma, "A");
-        listMahasiswa.add(bob);
-        
-
-        Mahasiswa charlie = new Mahasiswa();
-        charlie.nim = "1224001";
-        charlie.nama = "Charlie";
-        charlie.indeksNilai = new HashMap<>();
-        charlie.jurusan = sistemInformasi;
-        charlie.indeksNilai.put(algoritma, "D");
-        charlie.indeksNilai.put(erp, "D");
-        listMahasiswa.add(charlie);
-        
-    }
-
-    public static boolean konfirmasi(String text){
-        System.out.println(text+" (Y/N)");
+    public static boolean konfirmasi(String text) {
+        System.out.println(text + " (Y/N)");
         String konfirmasi = readLine();
         return konfirmasi.toLowerCase().equals("y");
     }
 
-    public static int getIndexJurusanByKode(String kode){
-        for (int i = 0; i < listJurusan.size(); i++){
-            Jurusan jurusan = listJurusan.get(i);
-            if (jurusan.kode.equals(kode)){
-                return i;
-            }
+    public static void displayAllJurusan(JurusanRepository jurusanRepository) {
+        List<Jurusan> listJurusan = jurusanRepository.findAll();
+        int counter = 1;
+        for (Jurusan jurusan : listJurusan) {
+            System.out.println(counter + ". " + jurusan.getKode() + " - " + jurusan.getNama());
+            counter++;
         }
-        return -1;
     }
 
-    public static String getLabelJurusan(Jurusan jurusan){
-        return "kode: " + jurusan.kode + ", nama: " + jurusan.nama;
+    public static void addJurusan(JurusanRepository jurusanRepository) {
+        System.out.println("Masukkan kode jurusan: ");
+        String kode = readLine();
+        System.out.println("Masukkan nama jurusan:");
+        String nama = readLine();
+
+        Jurusan jurusan = new Jurusan();
+        jurusan.setKode(kode);
+        jurusan.setNama(nama);
+        var konfirm = konfirmasi("Konfirm tambah jurusan? " + jurusan.getNama());
+        if (konfirm) {
+            jurusanRepository.insert(jurusan);
+            System.out.println("Jurusan berhasil ditambahkan");
+        }
     }
 
-    public static void handleMenuJurusan(){
+    public static void editJurusan(JurusanRepository jurusanRepository) {
+        System.out.println("Enter kode of the Jurusan you want to edit: ");
+        String kode = readLine();
+        Jurusan tempJurusan = jurusanRepository.findByKode(kode);
+        if (tempJurusan == null) {
+            System.out.println("Jurusan with kode " + kode + "doesn't exist");
+        }
+        System.out.println("Enter nama jurusan baru: ");
+        String nama = readLine();
+        tempJurusan = new Jurusan();
+        tempJurusan.setKode(kode);
+        tempJurusan.setNama(nama);
+        var konfirm = konfirmasi("Konfirm edit jurusan? " + tempJurusan.getKode());
+        if (konfirm) {
+            jurusanRepository.update(tempJurusan)
+            System.out.println("Jurusan berhasil diedit");
+        }
+    }
+
+    public static void deleteJurusan(JurusanRepository jurusanRepository) {
+        System.out.println("Masukkan kode jurusan: ");
+        String kode = readLine();
+        Jurusan tempJurusan = jurusanRepository.findByKode(kode)
+        if (tempJurusan == null) {
+            System.out.println("Jurusan tidak ditemukan");
+            break;
+        }
+        boolean konfirm = konfirmasi("Konfirm hapus jurusan? kode: " + tempJurusan.getKode() + ", nama: " + tempJurusan.getNama());
+        if (konfirm) {
+            jurusanRepository.delete(kode)
+            System.out.println("Jurusan berhasil dihapus");
+        }
+    }
+
+    public static void handleMenuJurusan(JurusanRepository jurusanRepository) {
         printMenuJurusan();
         int input = readInt();
-        while (input != 0){
+        while (input != 0) {
             switch (input) {
                 case 1 -> {
-                    for (int i = 0; i < listJurusan.size(); i++){
-                        Jurusan jurusan = listJurusan.get(i);
-                        System.out.println(getLabelJurusan(jurusan));
-                    }
+                    displayAllJurusan(jurusanRepository);
                     break;
                 }
                 case 2 -> {
-                    System.out.println("Masukkan kode jurusan: ");
-                    String kode = readLine();
-                    System.out.println("Masukkan nama jurusan:");
-                    String nama = readLine();
-
-                    Jurusan jurusan = new Jurusan();
-                    jurusan.kode = kode;
-                    jurusan.nama = nama;
-                    jurusan.listMataKuliah = new ArrayList<>();
-                    var konfirm = konfirmasi("Konfirm tambah jurusan? "+getLabelJurusan(jurusan));
-                    if (konfirm){
-                        listJurusan.add(jurusan);
-                        System.out.println("Jurusan berhasil ditambahkan");
-                    }
+                    addJurusan(jurusanRepository);
                     break;
                 }
                 case 3 -> {
-                    System.out.println("Masukkan kode jurusan: ");
-                    String kode = readLine();
-
-                    int index = getIndexJurusanByKode(kode);
-                    if (index == -1){
-                        System.out.println("Jurusan tidak ditemukan");
-                        break;
-                    }                    
-                    System.out.println("Masukkan nama jurusan:");
-                    String nama = readLine();
-                    Jurusan tempJurusan = new Jurusan();
-                    tempJurusan.kode = kode;
-                    tempJurusan.nama = nama;
-                    var konfirm = konfirmasi("Konfirm edit jurusan? "+getLabelJurusan(tempJurusan));
-                    if (konfirm){
-                        System.out.println("Jurusan berhasil diedit");
-                        Jurusan jurusan = listJurusan.get(index);
-                        jurusan.nama = nama;
-                    }
+                    editJurusan(jurusanRepository);
                     break;
                 }
                 case 4 -> {
-                    System.out.println("Masukkan kode jurusan: ");
-                    String kode = readLine();
-                    int index = getIndexJurusanByKode(kode);
-                    if (index == -1){
-                        System.out.println("Jurusan tidak ditemukan");
-                        break;
-                    }
-                    Jurusan jurusan = listJurusan.get(index);
-                    boolean konfirm = konfirmasi("Konfirm hapus jurusan? kode: "+kode+", nama: "+jurusan.nama);
-                    if (konfirm){
-                        listJurusan.remove(jurusan);
-                        System.out.println("Jurusan berhasil dihapus");
-                    }
+                    deleteJurusan(jurusanRepository);
                     break;
                 }
                 default -> {
@@ -217,7 +142,7 @@ public class App {
         }
     }
 
-    public static void printMenuJurusan(){
+    public static void printMenuJurusan() {
         System.out.println("");
         System.out.println("Menu jurusan:");
         System.out.println("1. Lihat daftar jurusan");
@@ -227,25 +152,11 @@ public class App {
         System.out.println("0. Keluar");
     }
 
-    public static int getIndexMataKuliahByKodeDanJurusan(String kode, Jurusan jurusan){
-        for (int i = 0; i < jurusan.listMataKuliah.size(); i++){
-            MataKuliah mataKuliah = jurusan.listMataKuliah.get(i);
-            if (mataKuliah.kode.equals(kode)){
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public static String getLabelMataKuliah(MataKuliah mataKuliah){
-        return "kode: " + mataKuliah.kode + ", nama: " + mataKuliah.nama + ", sks: " + mataKuliah.sks;
-    }
-
-    public static void handleMenuMataKuliah(){
+    public static void handleMenuMataKuliah() {
         System.out.println("Masukkan kode jurusan: ");
         String kode = readLine();
         int index = getIndexJurusanByKode(kode);
-        if (index == -1){
+        if (index == -1) {
             System.out.println("Jurusan tidak ditemukan");
             return;
         }
@@ -253,10 +164,10 @@ public class App {
         System.out.println(getLabelJurusan(jurusan));
         printMenuMataKuliah();
         int input = readInt();
-        while (input != 0){
+        while (input != 0) {
             switch (input) {
                 case 1 -> {
-                    for (int i = 0; i < jurusan.listMataKuliah.size(); i++){
+                    for (int i = 0; i < jurusan.listMataKuliah.size(); i++) {
                         System.out.println(getLabelMataKuliah(jurusan.listMataKuliah.get(i)));
                     }
                     break;
@@ -269,8 +180,8 @@ public class App {
                     mataKuliah.nama = readLine();
                     System.out.println("Masukkan jumlah sks: ");
                     mataKuliah.sks = readInt();
-                    var konfirm = konfirmasi("Konfirm tambah mata kuliah? "+getLabelMataKuliah(mataKuliah));
-                    if (konfirm){
+                    var konfirm = konfirmasi("Konfirm tambah mata kuliah? " + getLabelMataKuliah(mataKuliah));
+                    if (konfirm) {
                         jurusan.listMataKuliah.add(mataKuliah);
                         System.out.println("Mata kuliah berhasil ditambahkan");
                     }
@@ -280,7 +191,7 @@ public class App {
                     System.out.println("Masukkan kode mata kuliah: ");
                     String kodeMataKuliah = readLine();
                     int indexMataKuliah = getIndexMataKuliahByKodeDanJurusan(kodeMataKuliah, jurusan);
-                    if (indexMataKuliah == -1){
+                    if (indexMataKuliah == -1) {
                         System.out.println("Mata kuliah tidak ditemukan");
                         break;
                     }
@@ -290,8 +201,8 @@ public class App {
                     tempMataKuliah.nama = readLine();
                     System.out.println("Masukkan jumlah sks: ");
                     tempMataKuliah.sks = readInt();
-                    var konfirm = konfirmasi("Konfirm edit mata kuliah? "+getLabelMataKuliah(tempMataKuliah));
-                    if (konfirm){
+                    var konfirm = konfirmasi("Konfirm edit mata kuliah? " + getLabelMataKuliah(tempMataKuliah));
+                    if (konfirm) {
                         System.out.println("Mata kuliah berhasil diedit");
                         MataKuliah mataKuliah = jurusan.listMataKuliah.get(indexMataKuliah);
                         mataKuliah.nama = tempMataKuliah.nama;
@@ -303,13 +214,13 @@ public class App {
                     System.out.println("Masukkan kode mata kuliah: ");
                     String kodeMataKuliah = readLine();
                     int indexMataKuliah = getIndexMataKuliahByKodeDanJurusan(kodeMataKuliah, jurusan);
-                    if (indexMataKuliah == -1){
+                    if (indexMataKuliah == -1) {
                         System.out.println("Mata kuliah tidak ditemukan");
                         break;
                     }
                     MataKuliah mataKuliah = jurusan.listMataKuliah.get(indexMataKuliah);
-                    boolean konfirm = konfirmasi("Konfirm hapus mata kuliah? "+getLabelMataKuliah(mataKuliah));
-                    if (konfirm){
+                    boolean konfirm = konfirmasi("Konfirm hapus mata kuliah? " + getLabelMataKuliah(mataKuliah));
+                    if (konfirm) {
                         jurusan.listMataKuliah.remove(mataKuliah);
                         System.out.println("Mata kuliah berhasil dihapus");
                     }
@@ -324,7 +235,7 @@ public class App {
         }
     }
 
-    public static void printMenuMataKuliah(){
+    public static void printMenuMataKuliah() {
         System.out.println("");
         System.out.println("Menu mata kuliah:");
         System.out.println("1. List mata kuliah");
@@ -334,31 +245,13 @@ public class App {
         System.out.println("0. Keluar");
     }
 
-    public static int getIndexMahasiswaByNim(String nim){
-        for (int i = 0; i < listMahasiswa.size(); i++){
-            Mahasiswa mahasiswa = listMahasiswa.get(i);
-            if (mahasiswa.nim.equals(nim)){
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public static String getLabelMahasiswa(Mahasiswa mahasiswa){
-        return "nim: "+mahasiswa.nim+", nama: "+mahasiswa.nama+", jurusan: "+mahasiswa.jurusan.nama;
-    }
-
-    public static boolean isValidNilaiValue(String nilai){
-        return listIndexNilai.contains(nilai);
-    }
-
-    public static void handleMenuMahasiswa(){
+    public static void handleMenuMahasiswa() {
         printMenuMahasiswa();
         int input = readInt();
-        while (input !=  0){
+        while (input != 0) {
             switch (input) {
                 case 1 -> {
-                    for (int i = 0; i < listMahasiswa.size(); i++){
+                    for (int i = 0; i < listMahasiswa.size(); i++) {
                         Mahasiswa mahasiswa = listMahasiswa.get(i);
                         System.out.println(getLabelMahasiswa(mahasiswa));
                     }
@@ -373,13 +266,13 @@ public class App {
                     System.out.println("Masukkan kode jurusan: ");
                     String kodeJurusan = readLine();
                     int indexJurusan = getIndexJurusanByKode(kodeJurusan);
-                    if (indexJurusan == -1){
+                    if (indexJurusan == -1) {
                         System.out.println("Jurusan tidak ditemukan");
                         break;
                     }
                     mahasiswa.jurusan = listJurusan.get(indexJurusan);
-                    var konfirm = konfirmasi("Konfirm tambah mahasiswa? "+getLabelMahasiswa(mahasiswa));
-                    if (konfirm){
+                    var konfirm = konfirmasi("Konfirm tambah mahasiswa? " + getLabelMahasiswa(mahasiswa));
+                    if (konfirm) {
                         listMahasiswa.add(mahasiswa);
                         System.out.println("Mahasiswa berhasil ditambahkan");
                     }
@@ -389,7 +282,7 @@ public class App {
                     System.out.println("Masukkan nim: ");
                     String nim = readLine();
                     int indexMahasiswa = getIndexMahasiswaByNim(nim);
-                    if (indexMahasiswa == -1){
+                    if (indexMahasiswa == -1) {
                         System.out.println("Mahasiswa tidak ditemukan");
                         break;
                     }
@@ -400,13 +293,13 @@ public class App {
                     System.out.println("Masukkan kode jurusan: ");
                     String kodeJurusan = readLine();
                     int indexJurusan = getIndexJurusanByKode(kodeJurusan);
-                    if (indexJurusan == -1){
+                    if (indexJurusan == -1) {
                         System.out.println("Jurusan tidak ditemukan");
                         break;
                     }
                     tempMahasiswa.jurusan = listJurusan.get(indexJurusan);
-                    var konfirm = konfirmasi("Konfirm edit mahasiswa? "+getLabelMahasiswa(tempMahasiswa));
-                    if (konfirm){
+                    var konfirm = konfirmasi("Konfirm edit mahasiswa? " + getLabelMahasiswa(tempMahasiswa));
+                    if (konfirm) {
                         System.out.println("Mahasiswa berhasil diedit");
                         Mahasiswa mahasiswa = listMahasiswa.get(indexMahasiswa);
                         mahasiswa.nama = tempMahasiswa.nama;
@@ -418,13 +311,13 @@ public class App {
                     System.out.println("Masukkan nim: ");
                     String nim = readLine();
                     int indexMahasiswa = getIndexMahasiswaByNim(nim);
-                    if (indexMahasiswa == -1){                        
+                    if (indexMahasiswa == -1) {
                         System.out.println("Mahasiswa tidak ditemukan");
                         break;
                     }
                     Mahasiswa mahasiswa = listMahasiswa.get(indexMahasiswa);
-                    boolean konfirm = konfirmasi("Konfirm hapus mahasiswa? "+getLabelMahasiswa(mahasiswa));
-                    if (konfirm){
+                    boolean konfirm = konfirmasi("Konfirm hapus mahasiswa? " + getLabelMahasiswa(mahasiswa));
+                    if (konfirm) {
                         listMahasiswa.remove(mahasiswa);
                         System.out.println("Mahasiswa berhasil dihapus");
                     }
@@ -434,7 +327,7 @@ public class App {
                     System.out.println("Masukkan nim: ");
                     String nim = readLine();
                     int indexMahasiswa = getIndexMahasiswaByNim(nim);
-                    if (indexMahasiswa == -1){                        
+                    if (indexMahasiswa == -1) {
                         System.out.println("Mahasiswa tidak ditemukan");
                         break;
                     }
@@ -442,7 +335,7 @@ public class App {
                     System.out.println("Masukkan kode mata kuliah: ");
                     String kodeMataKuliah = readLine();
                     int indexMataKuliah = getIndexMataKuliahByKodeDanJurusan(kodeMataKuliah, mahasiswa.jurusan);
-                    if (indexMataKuliah == -1){
+                    if (indexMataKuliah == -1) {
                         System.out.println("Mata kuliah tidak ditemukan");
                         break;
                     }
@@ -450,7 +343,7 @@ public class App {
                     System.out.println("Masukkan nilai: ");
                     String nilai = readLine().toUpperCase();
                     boolean isValidNilai = isValidNilaiValue(nilai);
-                    if (!isValidNilai){
+                    if (!isValidNilai) {
                         System.out.println("Nilai tidak valid");
                         break;
                     }
@@ -458,15 +351,15 @@ public class App {
                     System.out.println("Nilai berhasil ditambahkan");
                     break;
                 }
-                case 6 -> {      
+                case 6 -> {
                     System.out.println("Masukkan nim: ");
                     String nim = readLine();
                     int indexMahasiswa = getIndexMahasiswaByNim(nim);
-                    if (indexMahasiswa == -1){                        
+                    if (indexMahasiswa == -1) {
                         System.out.println("Mahasiswa tidak ditemukan");
                         break;
                     }
-                    Mahasiswa mahasiswa = listMahasiswa.get(indexMahasiswa);              
+                    Mahasiswa mahasiswa = listMahasiswa.get(indexMahasiswa);
                     double totalNilai = 0;
                     int totalSks = 0;
                     for (Map.Entry<MataKuliah, String> entry : mahasiswa.indeksNilai.entrySet()) {
@@ -476,8 +369,8 @@ public class App {
                         totalSks = totalSks + mataKuliah.sks;
                         totalNilai = totalNilai + nilaiValue * mataKuliah.sks;
                     }
-                    double ipk = totalSks > 0 ?  totalNilai / totalSks : 0; 
-                    System.out.println("IPK: "+ipk);
+                    double ipk = totalSks > 0 ? totalNilai / totalSks : 0;
+                    System.out.println("IPK: " + ipk);
                     break;
                 }
                 default -> {
@@ -489,7 +382,7 @@ public class App {
         }
     }
 
-    public static void printMenuMahasiswa(){
+    public static void printMenuMahasiswa() {
         System.out.println("");
         System.out.println("Menu mahasiswa:");
         System.out.println("1. Lihat daftar mahasiswa");
@@ -500,9 +393,8 @@ public class App {
         System.out.println("6. Hitung IPK Mahasiswa");
         System.out.println("0. Keluar");
     }
-    
 
-    public static void printMenuUtama(){
+    public static void printMenuUtama() {
         System.out.println("");
         System.out.println("Menu utama: ");
         System.out.println("1. Menu jurusan");
@@ -511,14 +403,14 @@ public class App {
         System.out.println("0. Keluar ");
     }
 
-    public static void start(){
-        connection = Database.connect();
+    public void run() {
+        Connection conn = Database.connect();
         printMenuUtama();
         int input = readInt();
-        while (input != 0){
+        while (input != 0) {
             switch (input) {
                 case 1 -> {
-                    handleMenuJurusan();
+                    handleMenuJurusan(this.jurusanRepository);
                     break;
                 }
                 case 2 -> {
@@ -539,6 +431,7 @@ public class App {
     }
 
     public static void main(String[] args) {
-        start();
+        App miniSIAApp = new App();
+        miniSIAApp.run();
     }
 }

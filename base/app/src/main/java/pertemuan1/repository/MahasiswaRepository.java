@@ -12,7 +12,10 @@ import pertemuan1.models.Mahasiswa;
 import pertemuan1.models.Jurusan;
 
 public class MahasiswaRepository {
-    private JurusanRepository jurusanRepository = new JurusanRepository();
+    private final JurusanRepository jurusanRepository;
+    public MahasiswaRepository(JurusanRepository jurusanRepository){
+        this.jurusanRepository = jurusanRepository;
+    }
 
     public boolean insert(Mahasiswa mahasiswa) {
         Jurusan existingJurusan = jurusanRepository.findByKode(mahasiswa.getJurusan().getKode());
