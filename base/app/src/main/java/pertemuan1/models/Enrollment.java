@@ -6,6 +6,12 @@ public class Enrollment {
     private MataKuliah mataKuliah;
     private char grade;
 
+    public Enrollment(Mahasiswa mahasiswa, MataKuliah matakuliah, char grade){
+        this.mahasiswa = mahasiswa;
+        this.mataKuliah = matakuliah;
+        this.grade = grade;
+    }
+
     public Mahasiswa getMahasiswa(){
         return this.mahasiswa;
     }

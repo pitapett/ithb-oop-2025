@@ -2,8 +2,6 @@ package pertemuan1.models;
 
 import java.util.List;
 
-import pertemuan1.models.Enrollment;
-
 public class Mahasiswa {
     private String nim;
     private String nama;
